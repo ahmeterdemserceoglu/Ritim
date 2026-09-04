@@ -1,0 +1,2 @@
+export type LyricsResult={plainLyrics?:string|null;syncedLyrics?:string|null};
+export async function getLyrics(trackName:string,artistName:string,albumName?:string,duration?:number):Promise<LyricsResult|null>{const p=new URLSearchParams({track_name:trackName,artist_name:artistName});if(albumName)p.set("album_name",albumName);if(duration)p.set("duration",String(Math.round(duration)));const r=await fetch(`https://lrclib.net/api/get?${p}`);if(r.status===404)return null;if(!r.ok)throw new Error("Şarkı sözleri alınamadı.");return r.json()}
