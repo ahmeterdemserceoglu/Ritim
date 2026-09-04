@@ -1,0 +1,33 @@
+name: Ritim CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install client dependencies
+        run: npm install --no-audit --no-fund
+      - name: Expo dependency check
+        run: npx expo install --check
+      - name: TypeScript check
+        run: npm run typecheck
+      - name: Install server dependencies
+        run: npm --prefix server install --no-audit --no-fund
+      - name: Validate server JavaScript
+        run: |
+          node --check server/src/index.js
+          node --check server/src/sources.js
+          node --check server/src/catalog.js
+          node --check server/src/persistentCache.js
+          node --check server/src/sourceHealth.js
