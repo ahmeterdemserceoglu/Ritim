@@ -1,0 +1,3 @@
+import type {RadioStation} from "@/types/music";
+const BASE="https://de1.api.radio-browser.info/json";
+export async function searchStations(query="Turkey"):Promise<RadioStation[]>{const r=await fetch(`${BASE}/stations/search?name=${encodeURIComponent(query)}&hidebroken=true&limit=30&order=clickcount&reverse=true`,{headers:{"User-Agent":"Ritim/0.1"}});if(!r.ok)throw new Error("Radyo istasyonları alınamadı.");const j=await r.json();return(j??[]).filter((s:any)=>s.url_resolved||s.url).map((s:any)=>({id:s.stationuuid,name:s.name||"İsimsiz radyo",streamUrl:s.url_resolved||s.url,favicon:s.favicon||undefined,country:s.country||undefined,tags:typeof s.tags==="string"?s.tags.split(",").filter(Boolean):[]}))}
