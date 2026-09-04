@@ -1,9 +1,9 @@
 {
-  "name":"ritim","version":"0.5.0","private":true,"main":"expo-router/entry",
+  "name":"ritim","version":"0.5.1","private":true,"main":"expo-router/entry",
   "scripts":{"start":"expo start","android":"expo run:android","prebuild":"expo prebuild","typecheck":"tsc --noEmit","server":"npm --prefix server run dev"},
   "dependencies":{
-    "expo":"~57.0.0","expo-audio":"~57.0.4","expo-image":"~57.0.4","expo-router":"~57.0.18","expo-status-bar":"~57.0.0",
-    "expo-file-system":"~57.0.6","expo-sqlite":"~17.0.4","expo-network":"~57.0.4","expo-haptics":"~57.0.4","expo-media-library":"~57.0.4","expo-intent-launcher":"~57.0.1",
+    "expo":"~57.0.0","expo-audio":"~57.0.4","expo-image":"~57.0.4","expo-router":"~57.0.19","expo-status-bar":"~57.0.1",
+    "expo-file-system":"~57.0.6","expo-sqlite":"~57.0.2","expo-network":"~57.0.1","expo-haptics":"~57.0.2","expo-media-library":"~57.0.4","expo-intent-launcher":"~57.0.1",
     "@react-native-async-storage/async-storage":"^2.2.0","react":"19.2.3","react-native":"0.86.0",
     "react-native-safe-area-context":"^5.6.0","react-native-screens":"^4.16.0"
   },
