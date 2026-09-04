@@ -1,0 +1,2 @@
+import {dedupeTracks} from "@/lib/dedupe";import {searchInternetArchive} from "./internetArchive";import {searchMusicBrainz} from "./musicbrainz";import {searchOpenverse} from "./openverse";import type {Track} from "@/types/music";
+export async function searchAllMusic(query:string):Promise<Track[]>{const tasks=await Promise.allSettled([searchOpenverse(query),searchInternetArchive(query),searchMusicBrainz(query)]);return dedupeTracks(tasks.flatMap(x=>x.status==="fulfilled"?x.value:[]))}
