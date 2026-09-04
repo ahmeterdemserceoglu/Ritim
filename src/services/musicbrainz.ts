@@ -1,0 +1,3 @@
+import type {Track} from "@/types/music";
+const API="https://musicbrainz.org/ws/2";
+export async function searchMusicBrainz(query:string):Promise<Track[]>{if(!query.trim())return[];const r=await fetch(`${API}/recording?query=${encodeURIComponent(query)}&fmt=json&limit=20`,{headers:{Accept:"application/json","User-Agent":"Ritim/0.1 (Android music discovery app)"}});if(!r.ok)throw new Error("MusicBrainz araması başarısız.");const j=await r.json();return(j.recordings??[]).map((x:any)=>({id:`mb:${x.id}`,source:"musicbrainz",title:x.title,artist:x["artist-credit"]?.map((a:any)=>a.name).join("")||"Bilinmeyen sanatçı",album:x.releases?.[0]?.title,duration:x.length?Math.round(x.length/1000):undefined,isrc:x.isrcs?.[0]} satisfies Track))}
