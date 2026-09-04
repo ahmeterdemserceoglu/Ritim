@@ -1,40 +1,9 @@
-import type {Track} from '@/types/music';
+import type {Track,TrackSource} from '@/types/music';
+import type {AudioPreferences} from './preferences';
 import {trackFingerprint} from '@/lib/dedupe';
-
 export type Candidate={track:Track;score:number;reasons:string[]};
-
-const licenseScore=(license?:string)=>{
- if(!license)return 0;
- const l=license.toLowerCase();
- if(l.includes('public domain')||l.includes('cc0'))return 30;
- if(l.includes('by'))return 20;
- return 5;
-};
-
-export function scoreTrack(track:Track):Candidate{
- let score=0;const reasons:string[]=[];
- if(track.streamUrl){score+=50;reasons.push('oynatılabilir');}
- if(track.artworkUrl){score+=8;reasons.push('kapak');}
- if(track.duration){score+=5;reasons.push('süre');}
- if(track.isrc){score+=18;reasons.push('ISRC');}
- const ls=licenseScore(track.license);if(ls){score+=ls;reasons.push('lisans');}
- if(track.source==='internetarchive'){score+=6;reasons.push('archive');}
- if(track.source==='openverse'){score+=8;reasons.push('openverse');}
- return {track,score,reasons};
-}
-
-export function groupAlternatives(tracks:Track[]){
- const map=new Map<string,Candidate[]>();
- for(const track of tracks){const k=trackFingerprint(track);const list=map.get(k)??[];list.push(scoreTrack(track));map.set(k,list);}
- for(const [k,list] of map)map.set(k,list.sort((a,b)=>b.score-a.score));
- return map;
-}
-
-export function bestSources(tracks:Track[]):Track[]{
- return [...groupAlternatives(tracks).values()].map(x=>x[0].track);
-}
-
-export function fallbackList(target:Track,all:Track[]){
- const fp=trackFingerprint(target);
- return (groupAlternatives(all).get(fp)??[]).map(x=>x.track).filter(x=>x.streamUrl);
-}
+const licenseScore=(license?:string)=>{if(!license)return 0;const l=license.toLowerCase();if(l.includes('public domain')||l.includes('cc0'))return 30;if(l.includes('by'))return 20;return 5};
+export function scoreTrack(track:Track,prefs?:AudioPreferences):Candidate{let score=0;const reasons:string[]=[];if(track.streamUrl){score+=50;reasons.push('oynatılabilir')}if(track.artworkUrl){score+=8;reasons.push('kapak')}if(track.duration){score+=5;reasons.push('süre')}if(track.isrc){score+=18;reasons.push('ISRC')}const ls=licenseScore(track.license);if(ls){score+=ls;reasons.push('lisans')}if(track.source==='internetarchive'){score+=6;reasons.push('archive')}if(track.source==='openverse'){score+=8;reasons.push('openverse')}if(track.bitrate){score+=Math.min(20,track.bitrate/16);reasons.push(`${track.bitrate}kbps`)}if((track.format||'').toLowerCase().includes('flac')){score+=prefs?.preferredQuality==='data-saver'?-10:25;reasons.push('FLAC')}if(prefs?.preferredQuality==='data-saver'&&track.bitrate&&track.bitrate<=128)score+=15;if(prefs?.preferredQuality==='high'&&track.bitrate&&track.bitrate>=192)score+=15;if(prefs?.sourcePriority?.length){const i=prefs.sourcePriority.indexOf(track.source);if(i>=0)score+=(prefs.sourcePriority.length-i)*4}return{track,score,reasons}}
+export function groupAlternatives(tracks:Track[],prefs?:AudioPreferences){const map=new Map<string,Candidate[]>();for(const track of tracks){const k=trackFingerprint(track),list=map.get(k)??[];list.push(scoreTrack(track,prefs));map.set(k,list)}for(const[k,list]of map)map.set(k,list.sort((a,b)=>b.score-a.score));return map}
+export function bestSources(tracks:Track[],prefs?:AudioPreferences):Track[]{return[...groupAlternatives(tracks,prefs).values()].map(x=>({...x[0].track,sourceScore:x[0].score,alternatives:x.slice(1).filter(c=>c.track.streamUrl).map(c=>({source:c.track.source,streamUrl:c.track.streamUrl!,sourceScore:c.score,license:c.track.license}))}))}
+export function fallbackList(target:Track,all:Track[],prefs?:AudioPreferences){const fp=trackFingerprint(target);return(groupAlternatives(all,prefs).get(fp)??[]).map(x=>x.track).filter(x=>x.streamUrl)}
