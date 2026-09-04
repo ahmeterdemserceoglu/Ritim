@@ -1,16 +1,13 @@
 const {withAndroidManifest,withDangerousMod,AndroidConfig}=require('@expo/config-plugins');
 const fs=require('fs');const path=require('path');
 const pkg='com.ritim.music';
-
 function addComponent(list,item,key){const found=(list||[]).some(x=>x?.$?.['android:name']===key);return found?list:[...(list||[]),item]}
-
 module.exports=function withRitimAndroidMedia(config){
  config=withAndroidManifest(config,c=>{
   const app=AndroidConfig.Manifest.getMainApplicationOrThrow(c.modResults);
-  app['meta-data']=AndroidConfig.Manifest.addMetaDataItemToMainApplication(app['meta-data']||[],'com.google.android.gms.car.application','@xml/automotive_app_desc','resource');
+  app['meta-data']=addComponent(app['meta-data'],{$:{'android:name':'com.google.android.gms.car.application','android:resource':'@xml/automotive_app_desc'}},'com.google.android.gms.car.application');
   app.service=addComponent(app.service,{$:{'android:name':`${pkg}.RitimTileService`,'android:label':'Ritim','android:icon':'@mipmap/ic_launcher','android:permission':'android.permission.BIND_QUICK_SETTINGS_TILE','android:exported':'true'},'intent-filter':[{'action':[{$:{'android:name':'android.service.quicksettings.action.QS_TILE'}}]}]},`${pkg}.RitimTileService`);
   app.receiver=addComponent(app.receiver,{$:{'android:name':`${pkg}.RitimWidgetProvider`,'android:exported':'false'},'intent-filter':[{'action':[{$:{'android:name':'android.appwidget.action.APPWIDGET_UPDATE'}}]}],'meta-data':[{$:{'android:name':'android.appwidget.provider','android:resource':'@xml/ritim_widget_info'}}]},`${pkg}.RitimWidgetProvider`);
-  c.modResults.manifest['uses-permission']=c.modResults.manifest['uses-permission']||[];
   return c;
  });
  config=withDangerousMod(config,['android',async c=>{
@@ -21,29 +18,8 @@ module.exports=function withRitimAndroidMedia(config){
   fs.writeFileSync(path.join(xmlDir,'automotive_app_desc.xml'),`<?xml version="1.0" encoding="utf-8"?><automotiveApp><uses name="media"/></automotiveApp>`);
   fs.writeFileSync(path.join(xmlDir,'ritim_widget_info.xml'),`<?xml version="1.0" encoding="utf-8"?><appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" android:minWidth="250dp" android:minHeight="70dp" android:updatePeriodMillis="0" android:initialLayout="@layout/ritim_widget" android:resizeMode="horizontal|vertical" android:widgetCategory="home_screen"/>`);
   fs.writeFileSync(path.join(layoutDir,'ritim_widget.xml'),`<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center" android:padding="12dp" android:background="#151A16"><TextView android:id="@+id/ritim_prev" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="◀" android:textColor="#F4F7F5" android:textSize="22sp"/><TextView android:id="@+id/ritim_play" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="▶Ⅱ" android:textColor="#B9FF38" android:textSize="22sp"/><TextView android:id="@+id/ritim_next" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="▶" android:textColor="#F4F7F5" android:textSize="22sp"/></LinearLayout>`);
-  fs.writeFileSync(path.join(javaDir,'RitimTileService.kt'),`package com.ritim.music
-import android.media.AudioManager
-import android.service.quicksettings.TileService
-import android.view.KeyEvent
-class RitimTileService:TileService(){
- private fun key(code:Int){val a=getSystemService(AUDIO_SERVICE) as AudioManager;a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN,code));a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP,code))}
- override fun onClick(){super.onClick();key(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)}
-}`);
-  fs.writeFileSync(path.join(javaDir,'RitimWidgetProvider.kt'),`package com.ritim.music
-import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
-import android.content.Context
-import android.content.Intent
-import android.media.AudioManager
-import android.view.KeyEvent
-import android.widget.RemoteViews
-class RitimWidgetProvider:AppWidgetProvider(){
- companion object{const val PLAY="com.ritim.music.PLAY";const val NEXT="com.ritim.music.NEXT";const val PREV="com.ritim.music.PREV"}
- private fun pending(c:Context,a:String,id:Int)=PendingIntent.getBroadcast(c,id,Intent(c,RitimWidgetProvider::class.java).setAction(a),PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
- override fun onUpdate(c:Context,m:AppWidgetManager,ids:IntArray){for(id in ids){val v=RemoteViews(c.packageName,R.layout.ritim_widget);v.setOnClickPendingIntent(R.id.ritim_play,pending(c,PLAY,1));v.setOnClickPendingIntent(R.id.ritim_next,pending(c,NEXT,2));v.setOnClickPendingIntent(R.id.ritim_prev,pending(c,PREV,3));m.updateAppWidget(id,v)}}
- override fun onReceive(c:Context,i:Intent){super.onReceive(c,i);val code=when(i.action){PLAY->KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;NEXT->KeyEvent.KEYCODE_MEDIA_NEXT;PREV->KeyEvent.KEYCODE_MEDIA_PREVIOUS;else->return};val a=c.getSystemService(Context.AUDIO_SERVICE) as AudioManager;a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN,code));a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP,code))}
-}`);
+  fs.writeFileSync(path.join(javaDir,'RitimTileService.kt'),`package com.ritim.music\nimport android.media.AudioManager\nimport android.service.quicksettings.TileService\nimport android.view.KeyEvent\nclass RitimTileService:TileService(){private fun key(code:Int){val a=getSystemService(AUDIO_SERVICE) as AudioManager;a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN,code));a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP,code))}override fun onClick(){super.onClick();key(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)}}`);
+  fs.writeFileSync(path.join(javaDir,'RitimWidgetProvider.kt'),`package com.ritim.music\nimport android.app.PendingIntent\nimport android.appwidget.AppWidgetManager\nimport android.appwidget.AppWidgetProvider\nimport android.content.Context\nimport android.content.Intent\nimport android.media.AudioManager\nimport android.view.KeyEvent\nimport android.widget.RemoteViews\nclass RitimWidgetProvider:AppWidgetProvider(){companion object{const val PLAY="com.ritim.music.PLAY";const val NEXT="com.ritim.music.NEXT";const val PREV="com.ritim.music.PREV"}private fun pending(c:Context,a:String,id:Int)=PendingIntent.getBroadcast(c,id,Intent(c,RitimWidgetProvider::class.java).setAction(a),PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)override fun onUpdate(c:Context,m:AppWidgetManager,ids:IntArray){for(id in ids){val v=RemoteViews(c.packageName,R.layout.ritim_widget);v.setOnClickPendingIntent(R.id.ritim_play,pending(c,PLAY,1));v.setOnClickPendingIntent(R.id.ritim_next,pending(c,NEXT,2));v.setOnClickPendingIntent(R.id.ritim_prev,pending(c,PREV,3));m.updateAppWidget(id,v)}}override fun onReceive(c:Context,i:Intent){super.onReceive(c,i);val code=when(i.action){PLAY->KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;NEXT->KeyEvent.KEYCODE_MEDIA_NEXT;PREV->KeyEvent.KEYCODE_MEDIA_PREVIOUS;else->return};val a=c.getSystemService(Context.AUDIO_SERVICE) as AudioManager;a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN,code));a.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP,code))}}`);
   return c;
  }]);
  return config;
