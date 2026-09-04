@@ -3,18 +3,16 @@
     "name": "Ritim",
     "slug": "ritim",
     "scheme": "ritim",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "android": {
-      "package": "com.ritim.music",
-      "adaptiveIcon": { "backgroundColor": "#0B0D0C" }
-    },
+    "android": {"package": "com.ritim.music","adaptiveIcon": {"backgroundColor": "#0B0D0C"}},
     "plugins": [
       "expo-router",
       ["expo-audio", {"enableBackgroundPlayback": true,"enableBackgroundRecording": false,"recordAudioAndroid": false}],
-      ["expo-media-library", {"granularPermissions": ["audio"]}]
+      ["expo-media-library", {"granularPermissions": ["audio"]}],
+      "./plugins/withRitimAndroidMedia.js"
     ],
     "experiments": {"typedRoutes": true}
   }
