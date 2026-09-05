@@ -39,21 +39,24 @@ jobs:
         continue-on-error: true
 
       - name: Generate Android project
-        run: npx expo prebuild --platform android --clean --non-interactive
+        run: npx expo prebuild --platform android --clean
         env:
           CI: '1'
+          NODE_ENV: production
 
-      - name: Build installable APK
+      - name: Build standalone release APK
         working-directory: android
-        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+        run: ./gradlew :app:assembleRelease --no-daemon --stacktrace
+        env:
+          NODE_ENV: production
 
       - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk Ritim-latest.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk Ritim-latest.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Ritim-Android-APK
+          name: Ritim-Android-Release-APK
           path: Ritim-latest.apk
           retention-days: 14
           if-no-files-found: error
