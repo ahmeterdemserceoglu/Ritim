@@ -11,12 +11,12 @@ export default function Home(){
  const r=useRouter();const insets=useSafeAreaInsets();const l=useRitimLayout();
  const[mixes,setMixes]=useState<any>({recent:[],mostPlayed:[],rediscover:[],artistMix:[]});
  useEffect(()=>{buildSmartMixes().then(setMixes)},[]);
- const shortcuts=[['✦','Sana Özel','/mixes'],['◉','Canlı Radyo','/(tabs)/radio'],['↓','Offline','/downloads'],['♫','Cihazdaki Müzik','/local'],['⌁','Keşif Radyosu','/discovery-radio'],['▦','Çalma Listeleri','/playlists']];
+ const shortcuts=[['✦','Sana Özel','/mixes'],['◉','Canlı Radyo','/(tabs)/radio'],['↓','İndirilenler','/downloads'],['♫','Cihazdaki Müzik','/local'],['⌁','Keşfet','/discovery'],['▦','Çalma Listeleri','/playlists']];
  return <ScrollView style={s.c} contentContainerStyle={{paddingTop:Math.max(insets.top+20,54),paddingBottom:170}}>
    <View style={[s.shell,{maxWidth:l.maxContentWidth,paddingHorizontal:l.horizontalPadding}]}>
      <Text style={s.logo}>RİTİM</Text>
-     <Text style={[s.h,l.compact&&{fontSize:30}]}>Müziğin seninle.</Text>
-     <Text style={s.sub}>Kişisel, local-first ve ücretsiz kaynaklarla çalışan müzik merkezi.</Text>
+     <Text style={[s.h,l.compact&&{fontSize:30}]}>Bugün ne dinlemek istersin?</Text>
+     <Text style={s.sub}>Sevdiğin şarkılar, radyolar, listeler ve keşifler tek yerde.</Text>
 
      <View style={[s.grid,{gap:l.gap}]}> 
        {shortcuts.map(([icon,title,path])=><Pressable key={title} onPress={()=>r.push(path as any)} style={[s.short,{width:l.gridCardWidth,minHeight:l.tablet?112:92}]}>
@@ -25,15 +25,15 @@ export default function Home(){
      </View>
 
      <View style={[s.hero,l.tablet&&{padding:28}]}>
-       <Text style={s.badge}>RİTİM MIX</Text><Text style={[s.hh,l.tablet&&{fontSize:28}]}>Dinledikçe sana uyum sağlar</Text>
-       <Text style={s.p}>Favori, tekrar dinleme, tamamlanma ve skip davranışın cihaz üzerinde öneri skoruna dönüşür.</Text>
-       <Pressable onPress={()=>r.push('/mixes')} style={s.heroBtn}><Text style={s.hbt}>Mixleri aç</Text></Pressable>
+       <Text style={s.badge}>SANA ÖZEL</Text><Text style={[s.hh,l.tablet&&{fontSize:28}]}>Dinledikçe daha iyi öneriler</Text>
+       <Text style={s.p}>Son dinlediklerin ve favorilerin üzerinden sana özel karışımlar hazırlanır.</Text>
+       <Pressable onPress={()=>r.push('/mixes')} style={s.heroBtn}><Text style={s.hbt}>Karışımları aç</Text></Pressable>
      </View>
 
-     {mixes.recent?.length>0&&<Section title="Devam Et / Son Dinlediklerin" tracks={mixes.recent.slice(0,8)}/>} 
-     {mixes.mostPlayed?.length>0&&<Section title="En Çok Dinlediklerin" tracks={mixes.mostPlayed.slice(0,8)}/>} 
-     {mixes.rediscover?.length>0&&<Section title="Yeniden Keşfet" tracks={mixes.rediscover.slice(0,8)}/>} 
-     <Pressable onPress={()=>r.push('/settings')} style={s.settings}><Text style={s.settingsText}>⚙ Ritim ayarları ve tanılama</Text><Text style={s.arrow}>›</Text></Pressable>
+     {mixes.recent?.length>0&&<Section title="Kaldığın yerden devam et" tracks={mixes.recent.slice(0,8)}/>} 
+     {mixes.mostPlayed?.length>0&&<Section title="En çok dinlediklerin" tracks={mixes.mostPlayed.slice(0,8)}/>} 
+     {mixes.rediscover?.length>0&&<Section title="Tekrar keşfet" tracks={mixes.rediscover.slice(0,8)}/>} 
+     <Pressable onPress={()=>r.push('/settings')} style={s.settings}><Text style={s.settingsText}>⚙ Ayarlar</Text><Text style={s.arrow}>›</Text></Pressable>
    </View>
  </ScrollView>
 }
