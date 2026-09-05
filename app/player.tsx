@@ -12,7 +12,7 @@ export default function Player(){
  const pan=useMemo(()=>PanResponder.create({onMoveShouldSetPanResponder:(_,g)=>Math.abs(g.dx)>18||Math.abs(g.dy)>18,onPanResponderRelease:(_,g)=>{if(Math.abs(g.dy)>Math.abs(g.dx)&&g.dy>90){Haptics.selectionAsync();r.back();return}if(Math.abs(g.dx)>80){Haptics.selectionAsync();g.dx<0?next():previous()}}}),[currentTrack?.id,next,previous]);
  if(!currentTrack)return <View style={s.empty}><Text style={s.title}>Henüz bir şey çalmıyor.</Text><Pressable onPress={()=>r.back()}><Text style={s.link}>Geri dön</Text></Pressable></View>;
  const p=duration?Math.min(100,currentTime/duration*100):0,live=currentTrack.source==='radio'||currentTrack.artist==='Canlı Radyo';
- return <View style={s.root}>{currentTrack.artworkUrl&&<ImageBackground source={{uri:currentTrack.artworkUrl}} blurRadius={55} style={StyleSheet.absoluteFillObject}><View style={s.scrim}/></ImageBackground>}
+ return <View style={s.root}>{currentTrack.artworkUrl&&<ImageBackground source={{uri:currentTrack.artworkUrl}} blurRadius={55} style={StyleSheet.absoluteFill}><View style={s.scrim}/></ImageBackground>}
  <ScrollView style={s.c} contentContainerStyle={{paddingTop:Math.max(insets.top+12,44),paddingBottom:Math.max(insets.bottom+40,60)}}>
   <View style={[s.shell,{maxWidth:l.tablet?620:l.maxContentWidth,paddingHorizontal:l.horizontalPadding}]}> 
    <View style={s.top}><Pressable onPress={()=>r.back()}><Text style={s.back}>⌄</Text></Pressable><Text style={s.now}>ŞU ANDA ÇALIYOR</Text><Pressable onPress={()=>r.push('/settings')}><Text style={s.more}>•••</Text></Pressable></View>
