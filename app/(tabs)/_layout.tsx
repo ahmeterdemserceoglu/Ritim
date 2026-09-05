@@ -1,3 +1,3 @@
-import {Tabs} from "expo-router";import {Text} from "react-native";import {colors} from "@/theme";
-const I=({s,c}:{s:string;c:string})=><Text style={{color:c,fontSize:20}}>{s}</Text>;
+import {Tabs} from "expo-router";import {Text,type ColorValue} from "react-native";import {colors} from "@/theme";
+const I=({s,c}:{s:string;c:ColorValue})=><Text style={{color:c,fontSize:20}}>{s}</Text>;
 export default function Layout(){return <Tabs screenOptions={{headerShown:false,tabBarActiveTintColor:colors.green,tabBarInactiveTintColor:colors.muted,tabBarStyle:{height:68,paddingTop:7,paddingBottom:7,backgroundColor:"#0E110F",borderTopColor:colors.line},tabBarLabelStyle:{fontSize:11,fontWeight:"700"}}}><Tabs.Screen name="index" options={{title:"Ana Sayfa",tabBarIcon:({color})=><I s="⌂" c={color}/>}}/><Tabs.Screen name="search" options={{title:"Ara",tabBarIcon:({color})=><I s="⌕" c={color}/>}}/><Tabs.Screen name="radio" options={{title:"Radyo",tabBarIcon:({color})=><I s="◉" c={color}/>}}/><Tabs.Screen name="library" options={{title:"Kitaplık",tabBarIcon:({color})=><I s="▦" c={color}/>}}/></Tabs>}
